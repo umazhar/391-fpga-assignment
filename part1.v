@@ -16,25 +16,39 @@ module part1 (CLOCK_50, CLOCK2_50, KEY, FPGA_I2C_SCLK, FPGA_I2C_SDAT, AUD_XCK,
 	// Local wires.
 	wire read_ready, write_ready, read, write;
 	wire [23:0] readdata_left, readdata_right,;
-	wire [23:0] writedata_left, writedata_right, writedata_left_buff, writedata_right_buff;
+	wire [23:0] writedata_left, writedata_righT;
+
 	wire reset = ~KEY[0];
 
 	/////////////////////////////////
 	// Your code goes here 
 	/////////////////////////////////
-	
-	assign writedata_left = read_ready ? readdata_left: writedata_left;
-	assign writedata_right = read_ready ? readdata_right: writedata_right_buff;
-	assign writedata_left = write ? readdata_left : writedata_left_buff;
-	assign writedata_right = write ? readdata_right: writedata_right_buff;
+	wire [23:0] writedata_left_temp, writedata_right_temp;
+
 	assign read = read_ready;
 	assign write = write_ready;
-	
-	// assign writedata_left = write ? readdata_left;
+	assign writedata_right = read_ready ? readdata_right: writedata_right_temp;
+	assign writedata_left = read_ready ? readdata_left: writedata_left;
+	assign writedata_right = write ? readdata_right: writedata_right_temp;
+	assign writedata_left = write ? readdata_left : writedata_left_temp;
+
+
+	// THIS MAY WORK, test this 
+	// assign writedata_left = readdata_left;
 	// assign writedata_right = readdata_right;
 	// assign read = read_ready;
 	// assign write = write_ready;
 	
+	module noise_generator(clk, enable, Q);
+	input clk, enable;
+    	output [23:0] Q;
+	reg [2:0] counter;
+	always@(posedge clk)
+		if (enable)	
+			counter = counter + 1'b1;
+	assign Q = {{10{counter[2]}}, counter, 11'd0};
+	end module;
+	    	
 /////////////////////////////////////////////////////////////////////////////////
 // Audio CODEC interface. 
 //
