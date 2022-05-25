@@ -30,8 +30,8 @@ module part1 (CLOCK_50, CLOCK2_50, KEY, FPGA_I2C_SCLK, FPGA_I2C_SDAT, AUD_XCK,
 	assign read = read_ready;
 	assign write = write_ready;
 	
-	filter FILTER_LEFT(CLOCK50, readdata_left, filter_out_left, read_ready);
-	filter FILTER_RIGHT(CLOCK50, readdata_right, filter_out_right, read_ready);
+	filter FILTER_LEFT(CLOCK_50, readdata_left, filter_out_left, read_ready);
+	filter FILTER_RIGHT(CLOCK_50, readdata_right, filter_out_right, read_ready);
 
 /////////////////////////////////////////////////////////////////////////////////
 // Audio CODEC interface. 
@@ -106,7 +106,7 @@ module filter(CLOCK_50, in, out, read_ready);
     input read_ready;
 
     //registers for 8 stage filter
-	reg [23:0] buff0, buff1, buff2, buff3, buff4, buff5, buff6, buff7;
+	reg signed [23:0] buff0, buff1, buff2, buff3, buff4, buff5, buff6, buff7;
 	reg [23:0] sum;
 	wire [23:0] noise;
 
@@ -117,16 +117,14 @@ module filter(CLOCK_50, in, out, read_ready);
 	begin
 		if(read_ready == 1'b1)
 			begin
-				buff0 <= in >> 3;
+				buff0 <= in >>> 3;
 				buff1 <= buff0;
 				buff2 <= buff1;
-			    buff3 <= buff2;
+			    	buff3 <= buff2;
 				buff4 <= buff3;
 				buff5 <= buff4;
 				buff6 <= buff5;
-				buff7 <= buff6;
-				
-				//sum <= in;		
+				buff7 <= buff6;		
 			end
 	end
 
@@ -134,4 +132,21 @@ module filter(CLOCK_50, in, out, read_ready);
 		sum = buff0 + buff1 + buff2 + buff3 + buff4 + buff5 + buff6 + buff7;	
 	end
 	assign out = sum;
+endmodule
+
+
+// module n_sample_filter(in, out, enable);
+// 	input [23:0] in;
+// 	output [23:0] out;
+// 	input enable;
+
+// 	wire N = 4'd8;
+
+			
+
+
+endmodule
+
+module flip_flop()
+	
 endmodule
